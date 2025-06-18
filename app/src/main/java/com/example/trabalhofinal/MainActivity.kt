@@ -1,7 +1,6 @@
 package com.example.trabalhofinal
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +14,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.trabalhofinal.database.AppDatabase
 import com.example.trabalhofinal.entity.Trip
+import com.example.trabalhofinal.screens.EditTripScreen
 import com.example.trabalhofinal.screens.LoginScreen
 import com.example.trabalhofinal.screens.MainScreen
 import com.example.trabalhofinal.screens.RegisterTripScreen
 import com.example.trabalhofinal.screens.RegisterUserMainScreen
 import com.example.trabalhofinal.ui.theme.TrabalhoFinalTheme
 import androidx.compose.runtime.*
+import androidx.activity.ComponentActivity
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -56,11 +57,15 @@ class MainActivity : ComponentActivity() {
                             val context = LocalContext.current
                             val scope = rememberCoroutineScope()
 
-                            LaunchedEffect(Unit) {
+                            fun loadTrips() {
                                 scope.launch {
                                     val db = AppDatabase.getDatabase(context)
-                                    trips = db.tripDao().getAll() // Certifique-se que getAll() retorna List<Trip>
+                                    trips = db.tripDao().getAll()
                                 }
+                            }
+
+                            LaunchedEffect(Unit) {
+                                loadTrips()
                             }
 
                             MainScreen(
@@ -75,6 +80,13 @@ class MainActivity : ComponentActivity() {
                                 trips = trips,
                                 onEditTrip = { trip ->
                                     navController.navigate("editTrip/${trip.id}")
+                                },
+                                onDeleteTrip = { trip ->
+                                    scope.launch {
+                                        val db = AppDatabase.getDatabase(context)
+                                        db.tripDao().delete(trip)
+                                        loadTrips() // Atualiza a lista após deletar
+                                    }
                                 }
                             )
                         }
@@ -118,6 +130,20 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                        }
+
+                        composable("editTrip/{tripId}") { backStackEntry ->
+                            val tripId = backStackEntry.arguments?.getString("tripId")?.toLongOrNull()
+                            if (tripId != null) {
+                                EditTripScreen(
+                                    tripId = tripId,
+                                    onEditSuccess = {
+                                        navController.navigate("mainScreen") {
+                                            popUpTo("editTrip/$tripId") { inclusive = true }
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                 }

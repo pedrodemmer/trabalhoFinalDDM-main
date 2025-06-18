@@ -1,6 +1,7 @@
 package com.example.trabalhofinal.screens
 
 import android.widget.Toast
+import com.example.trabalhofinal.util.tripTypeIcon
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -15,9 +16,8 @@ import com.example.trabalhofinal.entity.Trip
 import com.example.trabalhofinal.model.TripType
 import com.example.travelapp.components.DatePickerField
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.*
 import com.example.trabalhofinal.components.BottomNavBar
+import com.example.trabalhofinal.util.CurrencyVisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +34,7 @@ fun RegisterTripScreen(
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
     var budget by remember { mutableStateOf("") }
+    var budgetRaw by remember { mutableStateOf("") }
     var selectedTripType by remember { mutableStateOf(TripType.LAZER) }
     var expanded by remember { mutableStateOf(false) }
 
@@ -84,6 +85,12 @@ fun RegisterTripScreen(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Tipo de Viagem") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = tripTypeIcon(selectedTripType),
+                            contentDescription = selectedTripType.name
+                        )
+                    },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .menuAnchor()
@@ -96,7 +103,17 @@ fun RegisterTripScreen(
                 ) {
                     TripType.values().forEach { type ->
                         DropdownMenuItem(
-                            text = { Text(type.name) },
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = tripTypeIcon(type),
+                                        contentDescription = type.name,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(type.name)
+                                }
+                            },
                             onClick = {
                                 selectedTripType = type
                                 expanded = false
@@ -107,22 +124,19 @@ fun RegisterTripScreen(
             }
 
             OutlinedTextField(
-                value = budget,
-                onValueChange = {
-                    val cleanString = it.replace(Regex("[^\\d]"), "")
-                    val parsed = cleanString.toDoubleOrNull() ?: 0.0
-                    val formatted = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-                        .format(parsed / 100)
-                    budget = formatted
+                value = budgetRaw,
+                onValueChange = { newValue ->
+                    budgetRaw = newValue.filter { it.isDigit() }
                 },
                 label = { Text("Orçamento") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = CurrencyVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
                 onClick = {
-                    if (destination.isBlank() || startDate.isBlank() || endDate.isBlank() || budget.isBlank()) {
+                    if (destination.isBlank() || startDate.isBlank() || endDate.isBlank() || budgetRaw.isBlank()) {
                         Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                     } else {
                         scope.launch {
@@ -138,8 +152,7 @@ fun RegisterTripScreen(
                                     endDateParsed.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()
                                 )
 
-                                val budgetValue = NumberFormat.getCurrencyInstance(Locale("pt", "BR"))
-                                    .parse(budget)?.toDouble() ?: 0.0
+                                val budgetValue = budgetRaw.toDoubleOrNull()?.div(100) ?: 0.0
 
                                 val trip = Trip(
                                     destination = destination,

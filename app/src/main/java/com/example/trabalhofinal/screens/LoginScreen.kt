@@ -38,12 +38,12 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             MyTextField(
-                label = "User",
+                label = "Usuário",
                 value = loginState.user,
                 onValueChange = { loginViewModel.onUserChange(it) }
             )
             MyPasswordField(
-                label = "Password",
+                label = "Senha",
                 value = loginState.password,
                 onValueChange = { loginViewModel.onPasswordChange(it) }
             )
@@ -63,7 +63,7 @@ fun LoginScreen(
                     onNavigateToRegister()
                 }
             ) {
-                Text(text = "Register")
+                Text(text = "Registro")
             }
         }
     }
