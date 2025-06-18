@@ -1,6 +1,6 @@
 package com.example.trabalhofinal.screens
 
-import com.example.trabalhofinal.util.tripTypeIcon
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.trabalhofinal.components.BottomNavBar
 import com.example.trabalhofinal.entity.Trip
@@ -25,11 +26,11 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material.icons.filled.BeachAccess
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.Icon
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -41,33 +42,11 @@ fun MainScreen(
     onDeleteTrip: (Trip) -> Unit
 ) {
     Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Botão Sair à esquerda
-                IconButton(onClick = onLogout) {
-                    Icon(
-                        imageVector = Icons.Default.ExitToApp,
-                        contentDescription = "Sair"
-                    )
-                }
-                Text(
-                    text = "Agenda de viagens",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Spacer(modifier = Modifier.width(48.dp)) // Espaço para alinhar visualmente
-            }
-        },
         bottomBar = {
             BottomNavBar(
                 onCadastrarViagem = onNavigateToRegisterTrip,
                 onHome = {},
-                onSobre = { /* ação para sobre */ }
+                onSair = onLogout
             )
         }
     ) { innerPadding ->
@@ -125,12 +104,6 @@ fun TripCard(
     onLongPress: (Trip) -> Unit
 ) {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val imageRes = when (trip.tripType) {
-        TripType.NEGOCIOS,
-        TripType.LAZER,
-        TripType.ESTUDOS,
-        TripType.OUTROS -> R.drawable.ic_launcher_foreground // Ícone padrão do Android Studio
-    }
 
     Card(
         modifier = Modifier

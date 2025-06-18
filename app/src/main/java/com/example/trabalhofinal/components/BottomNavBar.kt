@@ -3,7 +3,7 @@ package com.example.trabalhofinal.components
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,7 +14,7 @@ fun BottomNavBar(
     modifier: Modifier = Modifier,
     onCadastrarViagem: () -> Unit = {},
     onHome: () -> Unit = {},
-    onSobre: () -> Unit = {}
+    onSair: () -> Unit = {}
 ) {
     var selectedIndex by remember { mutableStateOf(1) }
 
@@ -55,15 +55,15 @@ fun BottomNavBar(
             selected = selectedIndex == 2,
             onClick = {
                 selectedIndex = 2
-                onSobre()
+                onSair()
             },
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Sobre"
+                    imageVector = Icons.Default.ExitToApp,
+                    contentDescription = "Sair"
                 )
             },
-            label = { Text("Sobre") },
+            label = { Text("Sair") },
             alwaysShowLabel = true
         )
     }
